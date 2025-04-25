@@ -61,7 +61,7 @@ export const LikeButton=({postId}:Props)=>{
          const previousVotes = queryClient.getQueryData<Vote[]>(['votes', postId]);
   
      // Optimistically update the votes
-         const newVote: Vote = { vote: voteValue, user_id: user?.id };
+         const newVote: Vote = {id:Date.now(),post_id: postId,  user_id: user?.id ?? null,vote: voteValue };
         const updatedVotes = previousVotes
           ? previousVotes.filter((v) => v.user_id !== user?.id).concat(newVote)
           : [newVote];
@@ -71,12 +71,11 @@ export const LikeButton=({postId}:Props)=>{
   
         // Return context with previous votes for rollback if needed
         return { previousVotes }}
-        ,onError: (err, variables, context) => {
+        ,onError: (err,_, context) => {
             if (context?.previousVotes) {
               queryClient.setQueryData(['votes', postId], context.previousVotes);
             }
             if(err) throw new Error(err.message)
-              // if(variables) {}
                
           },
           
